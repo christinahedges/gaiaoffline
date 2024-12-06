@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "gaiaoffline"
+version = "1.0.0"
+description = ""
+authors = ["Christina Hedges <christina.l.hedges@nasa.gov>"]
+readme = "README.md"
+packages = [{include = "gaiaoffline", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+spatialite = "^0.0.3"
+pandas = "^2.2.3"
+bottleneck = "^1.4.2"
+sqlite-utils = "^3.38"
+appdirs = "^1.4.4"
+lxml = "^5.3.0"
+html5lib = "^1.1"
+beautifulsoup4 = "^4.12.3"
+configparser = "^7.1.0"
+tqdm = "^4.67.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.3.2"
+matplotlib = "^3.9.3"
+line-profiler = "^4.2.0"
+pytest = "^8.3.4"
+black = "^24.10.0"
+flake8 = "^7.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
