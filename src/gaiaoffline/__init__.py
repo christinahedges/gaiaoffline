@@ -1,7 +1,8 @@
+import configparser  # noqa: E402
 import logging  # noqa: E402
 import os  # noqa
-import configparser
-from appdirs import user_data_dir, user_config_dir
+
+from appdirs import user_config_dir, user_data_dir  # noqa: E402
 
 __version__ = "1.0.0"
 PACKAGEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -22,7 +23,11 @@ def reset_config():
     }
 
     config["DATABASE"] = {
-        "stored_columns": "source_id,ra,dec,parallax,pmra,pmdec,phot_g_mean_flux,phot_bp_mean_flux,phot_rp_mean_flux,radial_velocity,teff_gspphot,logg_gspphot,mh_gspphot",
+        "stored_columns": (
+            "source_id,ra,dec,parallax,pmra,pmdec,"
+            "phot_g_mean_flux,phot_bp_mean_flux,phot_rp_mean_flux,"
+            "radial_velocity,teff_gspphot,logg_gspphot,mh_gspphot"
+        ),
         "zeropoints": "25.6873668671,25.3385422158,24.7478955012",
         "magnitude_limit": "16",
     }
@@ -75,5 +80,11 @@ DATABASEPATH = os.path.join(DATABASEDIR, DATABASENAME)
 logger = logging.getLogger("gaiaoffline")
 logger.setLevel(config["SETTINGS"]["log_level"])
 
-from .utils import *
-from .gaiaoffline import *
+from .gaiaoffline import Gaia  # noqa: E402, F401
+from .utils import (  # noqa: E402, F401
+    add_csv_to_db,  # noqa: E402, F401
+    get_gaia_csv_urls,  # noqa: E402, F401
+    delete_database,  # noqa: E402, F401
+    index_radecflux,  # noqa: E402, F401
+    create_database,  # noqa: E402, F401
+)

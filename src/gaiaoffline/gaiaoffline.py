@@ -1,7 +1,8 @@
-import numpy as np
-import pandas as pd
 import sqlite3
 import timeit
+
+import numpy as np
+import pandas as pd
 
 from . import DATABASEPATH, config
 

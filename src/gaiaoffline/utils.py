@@ -1,14 +1,14 @@
-import pandas as pd
-import sqlite3
-import requests
-from typing import List
-from bs4 import BeautifulSoup
 import os
-from tqdm import tqdm
+import sqlite3
+from typing import List
+
 import numpy as np
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from tqdm import tqdm
 
-
-from . import logger, DATABASEPATH, config
+from . import DATABASEPATH, config, logger
 
 __all__ = [
     "add_csv_to_db",
