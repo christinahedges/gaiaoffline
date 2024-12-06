@@ -14,7 +14,9 @@ def setup_database_once():
     create_database(file_limit=1)
     yield
     # Cleanup after all tests
+    assert os.path.exists(DATABASEPATH), "Database file does not exist before deletion."
     delete_database()
+    assert not os.path.exists(DATABASEPATH), "Database file was not deleted."
 
 
 def test_database_creation(setup_database_once):
@@ -40,10 +42,3 @@ def test_conesearch(setup_database_once):
             results, pd.DataFrame
         ), "Conesearch did not return a DataFrame."
         assert not results.empty, "Conesearch returned an empty DataFrame."
-
-
-def test_delete_database(setup_database_once):
-    """Test if the database deletion works as expected."""
-    assert os.path.exists(DATABASEPATH), "Database file does not exist before deletion."
-    delete_database()
-    assert not os.path.exists(DATABASEPATH), "Database file was not deleted."
