@@ -1,4 +1,4 @@
-<a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/tests.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/pytest/badge.svg" alt="Test status"/></a>
+<a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/pytest.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/pytest/badge.svg" alt="Test status"/></a>
 
 # GaiaOffline
 
