@@ -1,3 +1,5 @@
+![PyPI Version](https://img.shields.io/pypi/v/gaiaoffline)
+
 # GaiaOffline
 
 **GaiaOffline** is a Python package for building and then querying a copy of the Gaia DR3 catalog locally on your machine, down to a specified magnitude limit. This tool enables you to download the Gaia catalog in subsets, so that you never store the entire catalog on your hard drive (saving space). This tool also manages the download for you, so that if you interrup the download you can begin it again from where you were interrupted. The database is stored in a local SQLite database, enabling you to perform efficient queries without relying on online services.
