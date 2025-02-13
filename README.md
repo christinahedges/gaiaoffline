@@ -4,6 +4,8 @@
 
 **GaiaOffline** is a Python package for offline querying of Gaia DR3 data. It enables you to download Gaia catalog subsets, store them in a local SQLite database, and perform efficient queries without relying on online services.
 
+The point of this repository is to enable you to create a local catalog with some flexibility, while keeping the on disk size of the catalog small. This optimizes for smallest size on disk at any time, not for
+
 ## Features
 
 - Download Gaia DR3 catalog data as CSV files and convert them to a local SQLite database.
@@ -25,7 +27,7 @@ pip install gaiaoffline
 Clone the repository:
 
 ```bash
-   git clone https://github.com/your-repo/gaiaoffline.git
+   git clone https://github.com/christinahedges/gaiaoffline.git
    cd gaiaoffline
 ```
 
@@ -94,31 +96,6 @@ from gaiaoffline import reset_config
 reset_config()
 ```
 
-## Usage
-
-### Creating the Database
-
-Download Gaia data and create the database:
-
-```python
-from gaiaoffline.utils import create_database
-create_database(file_limit=5)  # Download and process 5 files
-```
-
-This will create a database using only the first 5 files available, and will overwrite your existing database if it exists. There are 3500 files total to complete the Gaia database, and all must be downloaded to give a complete catalog.
-
-### Querying Data
-
-`gaiaoffline` provides you with an object that you can manage using context, this ensures that the database behind any queries is always closed after your have finished your queries.
-
-To perform a cone search around a given RA/Dec use:
-
-```python
-from gaiaoffline import Gaia
-with Gaia(magnitude_limit=(10, 15)) as gaia:
-    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
-```
-
 ### Delete the database
 
 The database can get large, and you may wish to delete it. Remember you can find the database file location in the config file.
@@ -128,6 +105,115 @@ from gaiaoffline.utils import delete_database
 
 # Remove the database
 delete_database()
+```
+
+### Adding a precomputed database
+
+If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
+
+1. Your config files match. All but the `db_dir` location should match.
+2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
+
+If you are using the default settings of this repository you can [download a precomputed catalog here](https//:zenodo.org/records/14866120).
+
+## Usage
+
+### Creating the Database
+
+If you don't have a copy of the database, you can create one using
+
+```python
+from gaiaoffline import populate_gaiadr3
+populate_gaiadr3()
+```
+
+This will download ~3500 csv files and will take a long time. If you interupt the download for any reason, simply repeat the command and the database will pick up the download from wherever you've left off.
+
+Once this is complete, you can optionally download the gaia-2MASS cross match using
+
+```python
+from gaiaoffline import populate_tmass_xmatch
+populate_tmass_xmatch()
+```
+
+Once this is finished you can then download the 2MASS database using
+
+```python
+from gaiaoffline import populate_tmass
+populate_tmass()
+```
+
+**You must complete these steps in order, otherwise your database will be incomplete.**
+
+Once you have completed this, you can check on the completeness by looking at the repr of the `Gaia` object.
+
+```python
+from gaiaoffline import Gaia
+with Gaia() as gaia:
+   print(gaia)
+```
+
+This repr should look something like:
+
+```bash
+Offline Gaia Database
+   gaiadr3: 100.0% Populated
+   tmass xmatch: 100.0% Populated
+   tmass: 100.0% Populated
+```
+
+### Querying the Database
+
+`gaiaoffline` provides you with an object that you can manage using context, this ensures that the database behind any queries is always closed after your have finished your queries.
+
+To perform a cone search around a given RA/Dec use:
+
+```python
+from gaiaoffline import Gaia
+with Gaia() as gaia:
+    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
+```
+
+#### Cone searches with a magnitude limit
+
+You can add a magnitude limit to your conesearch using
+
+```python
+from gaiaoffline import Gaia
+with Gaia(magnitude_limit=(-3, 10)) as gaia:
+    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
+```
+
+This will execute larger searches faster by applying the magnitude limit first.
+
+#### Cone searches with 2MASS data
+
+You can include the 2MASS crossmatch data using
+
+```python
+from gaiaoffline import Gaia
+with Gaia(tmass_crossmatch=True) as gaia:
+    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
+```
+
+#### Cone searches with magnitude outputs instead of flux
+
+The default is to output fluxes in the catalog, but you can switch to magnitudes using
+
+```python
+from gaiaoffline import Gaia
+with Gaia(photometry_output='mag') as gaia:
+    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
+```
+
+#### Cone searches with a limit on results
+
+If you are doing a large query and want only the top 10 results to test the query, you can use
+
+```python
+from gaiaoffline import Gaia
+with Gaia(limit=10) as gaia:
+    results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
 
 ## License

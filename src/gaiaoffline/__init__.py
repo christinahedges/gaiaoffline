@@ -16,17 +16,15 @@ def reset_config():
     config = configparser.ConfigParser()
     config["SETTINGS"] = {
         "db_dir": user_data_dir("gaiaoffline"),
-        "db_name": "gaiadr3.db",
+        "db_name": "gaiaoffline.db",
         "log_level": "INFO",
-        "table_name": "gaiadr3",
-        "archive_url": "https://cdn.gea.esac.esa.int/Gaia/gdr3/gaia_source/",
     }
 
     config["DATABASE"] = {
         "stored_columns": (
-            "source_id,ra,dec,parallax,pmra,pmdec,"
+            "source_id,ra,dec,parallax,pmra,pmdec,radial_velocity,"
             "phot_g_mean_flux,phot_bp_mean_flux,phot_rp_mean_flux,"
-            "radial_velocity,teff_gspphot,logg_gspphot,mh_gspphot"
+            "teff_gspphot,logg_gspphot,mh_gspphot"
         ),
         "zeropoints": "25.6873668671,25.3385422158,24.7478955012",
         "magnitude_limit": "16",
@@ -82,9 +80,9 @@ logger.setLevel(config["SETTINGS"]["log_level"])
 
 from .gaiaoffline import Gaia  # noqa: E402, F401
 from .utils import (  # noqa: E402, F401
-    add_csv_to_db,  # noqa: E402, F401
-    get_gaia_csv_urls,  # noqa: E402, F401
     delete_database,  # noqa: E402, F401
-    index_radecflux,  # noqa: E402, F401
-    create_database,  # noqa: E402, F401
+    populate_gaiadr3,  # noqa: E402, F401
+    # add_tmass_xmatch,  # noqa: E402, F401
+    populate_tmass_xmatch,  # noqa: E402, F401
+    populate_tmass,  # noqa: E402, F401
 )
