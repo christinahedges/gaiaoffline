@@ -71,13 +71,11 @@ The default magnitude limit is 16. This means that the tool will download the ca
 ```ini
 [SETTINGS]
 db_dir = /path/to/database
-db_name = gaiadr3.db
+db_name = gaiaoffline.db
 log_level = INFO
-table_name = gaiadr3
-archive_url = https://cdn.gea.esac.esa.int/Gaia/gdr3/gaia_source/
 
 [DATABASE]
-stored_columns = source_id,ra,dec,parallax,pmra,pmdec,phot_g_mean_flux,phot_bp_mean_flux,phot_rp_mean_flux,radial_velocity,teff_gspphot,logg_gspphot,mh_gspphot
+stored_columns = source_id,ra,dec,parallax,pmra,pmdec,radial_velocity,phot_g_mean_flux,phot_bp_mean_flux,phot_rp_mean_flux,teff_gspphot,logg_gspphot,mh_gspphot
 zeropoints = 25.6873668671,25.3385422158,24.7478955012
 magnitude_limit = 16
 ```
