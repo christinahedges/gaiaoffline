@@ -27,6 +27,15 @@ class Gaia(object):
         self.magnitude_limit = magnitude_limit
         self.limit = limit
         self.photometry_output = photometry_output
+
+        if tmass_crossmatch:
+            cursor = self.conn.cursor()
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?;",
+                ("tmass",),
+            )
+            if cursor.fetchone() != ("tmass",):
+                raise KeyError("2MASS Crossmatch is not present in the database. ")
         self.tmass_crossmatch = tmass_crossmatch
 
     def __repr__(self):

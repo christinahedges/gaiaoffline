@@ -1,14 +1,17 @@
 # GaiaOffline
 
-**GaiaOffline** is a Python package for offline querying of Gaia DR3 data. It enables you to download Gaia catalog subsets, store them in a local SQLite database, and perform efficient queries without relying on online services.
+**GaiaOffline** is a Python package for building and then querying a copy of the Gaia DR3 catalog locally on your machine, down to a specified magnitude limit. This tool enables you to download the Gaia catalog in subsets, so that you never store the entire catalog on your hard drive (saving space). This tool also manages the download for you, so that if you interrup the download you can begin it again from where you were interrupted. The database is stored in a local SQLite database, enabling you to perform efficient queries without relying on online services.
 
-The point of this repository is to enable you to create a local catalog with some flexibility, while keeping the on disk size of the catalog small. This optimizes for smallest size on disk at any time, not for
+The point of this repository is to enable you to create a local catalog with some flexibility, while keeping the on disk size of the catalog small. This should mean that you can download a version of the Gaia catalog to your local machine, even if you don't have a large hard drive.
+
+The total size of the catalog once you have completed the download using the default settings is ~30Gb.
 
 ## Features
 
 - Download Gaia DR3 catalog data as CSV files and convert them to a local SQLite database.
-- Perform offline queries, including rectangular searches in RA/Dec.
 - Configure stored columns, magnitude limits, and other settings via a persistent config file.
+- Optionally download and store the 2MASS crossmatch.
+- Perform offline queries, including rectangular searches in RA/Dec.
 
 ## Installation
 
@@ -44,6 +47,8 @@ GaiaOffline uses a persistent configuration file to manage settings. The configu
 - **Windows**: `%LOCALAPPDATA%\gaiaoffline\config.ini`
 
 You can use this file to customize the behavior of the package without modifying the code.
+
+The default magnitude limit is 16. This means that the tool will download the catalogs in small chunks, keep only elements that are brighter than 16th magnitude, delete the rest of the data and then move onto the next chunk. This results in a database that is ~30Gb on disk, and you will never require more hard-drive space than that to use the tool. If you increase the magnitude limit the final stored database will be larger.
 
 #### Key Sections
 
@@ -107,14 +112,18 @@ populate_gaiadr3()
 
 This will download ~3500 csv files and will take a long time. If you interupt the download for any reason, simply repeat the command and the database will pick up the download from wherever you've left off.
 
-Once this is complete, you can optionally download the gaia-2MASS cross match using
+#### 2MASS crossmatching
+
+Once the above catalog is complete, you can optionally download the gaia-2MASS cross match. This will do a left join, meaning that it will only keep entries with a matching target in the Gaia DR3 catalog you have downloaded in the step above.
+
+You can download the crossmatch database using
 
 ```python
 from gaiaoffline import populate_tmass_xmatch
 populate_tmass_xmatch()
 ```
 
-Once this is finished you can then download the 2MASS database using
+Once this is finished you can then download the 2MASS magnitudes that correspond to each cross match using
 
 ```python
 from gaiaoffline import populate_tmass
