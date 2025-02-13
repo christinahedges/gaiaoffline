@@ -4,7 +4,17 @@ import os  # noqa
 
 from appdirs import user_config_dir, user_data_dir  # noqa: E402
 
-__version__ = "1.0.0"
+from importlib.metadata import version, PackageNotFoundError  # noqa
+
+
+def get_version():
+    try:
+        return version("gaiaoffline")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+__version__ = get_version()
 PACKAGEDIR = os.path.abspath(os.path.dirname(__file__))
 
 CONFIGDIR = user_config_dir("gaiaoffline")

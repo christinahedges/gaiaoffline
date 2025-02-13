@@ -288,6 +288,8 @@ This should give a result that looks like the following:
   </tbody>
 </table>
 
+Note that the `Gaia` object sets up a context for us. This is to ensure that the connection to the database is opened and closed properly.
+
 You can add a magnitude limit to your conesearch using the following code. This will execute larger searches faster by applying the magnitude limit first.
 
 ```python
@@ -325,3 +327,14 @@ Any of the above can be used in combination.
 ## License
 
 This project is licensed under the MIT License.
+
+## Changelog
+
+### v1.0.1
+
+- Added check to ensure that the 2MASS data is present if user asks for crossmatch
+- Fixed strings in the 2MASS magnitudes to be floats
+
+### v1.0.0
+
+- Initial release of `gaiaoffline`

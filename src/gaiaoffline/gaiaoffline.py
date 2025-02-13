@@ -55,16 +55,13 @@ class Gaia(object):
     def _tmass_crossmatch_filter(self):
         return ["LEFT JOIN tmass t", "ON g.source_id = t.gaiadr3_source_id"]
 
-    @property
-    def _brightness_filter(self):
-        if (not isinstance(self.magnitude_limit, tuple)) | (
-            len(self.magnitude_limit) != 2
-        ):
+    def _brightness_filter(self, magnitude_limit):
+        if (not isinstance(magnitude_limit, tuple)) | (len(magnitude_limit) != 2):
             raise ValueError(
                 "Pass `magnitude_limit` as a tuple with (brightest magnitude, faintest magnitude)."
             )
-        upper_limit = np.min(self.magnitude_limit)
-        lower_limit = np.max(self.magnitude_limit)
+        upper_limit = np.min(magnitude_limit)
+        lower_limit = np.max(magnitude_limit)
         upper_limit_flux = np.round(10 ** ((self.zeropoints[0] - upper_limit) / 2.5))
         lower_limit_flux = np.round(10 ** ((self.zeropoints[0] - lower_limit) / 2.5))
         return [
@@ -180,6 +177,10 @@ class Gaia(object):
     def _clean_dataframe(self, df):
         """Take a dataframe and update it based on user preferences. e.g., update fluxes to magnitudes."""
         if self.photometry_output.lower() in ["mag", "magnitude"]:
+            if self.tmass_crossmatch:
+                df["j_m"] = pd.to_numeric(df["j_m"], errors="coerce")
+                df["h_m"] = pd.to_numeric(df["h_m"], errors="coerce")
+                df["k_m"] = pd.to_numeric(df["k_m"], errors="coerce")
             for mdx, mag_str in enumerate(["g", "bp", "rp"]):
                 if f"phot_{mag_str}_mean_flux" in df.columns:
                     if f"phot_{mag_str}_mean_mag_error" not in df.columns:
@@ -200,11 +201,17 @@ class Gaia(object):
                         df.drop(f"phot_{mag_str}_mean_flux", axis=1, inplace=True)
         elif self.photometry_output.lower() == "flux":
             if self.tmass_crossmatch:
-                df["j_flux"] = 10 ** (-0.4 * (df["j_m"] - 20.86650085))
+                df["j_flux"] = 10 ** (
+                    -0.4 * (pd.to_numeric(df["j_m"], errors="coerce") - 20.86650085)
+                )
                 df.drop("j_m", axis=1, inplace=True)
-                df["h_flux"] = 10 ** (-0.4 * (df["h_m"] - 20.6576004))
+                df["h_flux"] = 10 ** (
+                    -0.4 * (pd.to_numeric(df["h_m"], errors="coerce") - 20.6576004)
+                )
                 df.drop("h_m", axis=1, inplace=True)
-                df["k_flux"] = 10 ** (-0.4 * (df["k_m"] - 20.04360008))
+                df["k_flux"] = 10 ** (
+                    -0.4 * (pd.to_numeric(df["k_m"], errors="coerce") - 20.04360008)
+                )
                 df.drop("k_m", axis=1, inplace=True)
         else:
             raise ValueError(
@@ -238,8 +245,36 @@ class Gaia(object):
             tmass_table_str = ""
 
         filter_str = " AND ".join(
-            [*self._brightness_filter, self._get_conesearch_filter(ra, dec, radius)]
+            [
+                *self._brightness_filter(self.magnitude_limit),
+                self._get_conesearch_filter(ra, dec, radius),
+            ]
         )
+        query = f"SELECT g.*{tmass_table_str} FROM gaiadr3 g {tmass_crossmatch_str} WHERE {filter_str} {self._query_limit}"
+        return self._clean_dataframe(pd.read_sql_query(query, self.conn))
+
+    def brightnesslimitsearch(self, magnitude_limit: tuple) -> pd.DataFrame:
+        """
+        Perform a search for all targets down to a given brightness limit.
+
+        Parameters
+        ----------
+        magnitude_limit : tuple
+            The range of magnitudes to search
+
+        Returns
+        -------
+        df : pd.DataFrame
+            pandas dataframe of query results
+        """
+        if self.tmass_crossmatch:
+            tmass_crossmatch_str = "\n".join(self._tmass_crossmatch_filter)
+            tmass_table_str = ", t.tmass_source_id, t.j_m, t.h_m, t.k_m"
+        else:
+            tmass_crossmatch_str = ""
+            tmass_table_str = ""
+
+        filter_str = " AND ".join([*self._brightness_filter(magnitude_limit)])
         query = f"SELECT g.*{tmass_table_str} FROM gaiadr3 g {tmass_crossmatch_str} WHERE {filter_str} {self._query_limit}"
         return self._clean_dataframe(pd.read_sql_query(query, self.conn))
 
