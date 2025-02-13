@@ -1,17 +1,14 @@
 import os
 import sqlite3
-from typing import List, Dict
+from typing import List, Dict, Callable
 import functools
-from typing import Callable
 import tempfile
 import requests
-import os
 from functools import wraps
 
 
 import numpy as np
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -24,14 +21,11 @@ __all__ = [
     "populate_tmass",
 ]
 
-import functools
-import sqlite3
-from typing import Callable
-
 
 def download_url():
     """
-    Decorator to download a file from a URL, save it to a temporary file, and replace the first argument in the decorated function with the temporary file path.
+    Decorator to download a file from a URL, save it to a temporary file,
+    and replace the first argument in the decorated function with the temporary file path.
     """
 
     def decorator(func):
@@ -39,7 +33,7 @@ def download_url():
         def wrapper(*args, **kwargs):
             # Get the URL from the specified argument index
             url = args[0]
-            if url.startswith('/Users/'):
+            if url.startswith("/Users/"):
                 args = list(args)
                 args[0] = {url: url}
                 try:
@@ -100,12 +94,14 @@ def track_file_processing(tracking_table: str) -> Callable:
             try:
                 # Ensure the tracking table exists
                 with conn:
-                    conn.execute(f"""
+                    conn.execute(
+                        f"""
                         CREATE TABLE IF NOT EXISTS {tracking_table} (
                             url TEXT PRIMARY KEY,
                             status TEXT
                         );
-                    """)
+                    """
+                    )
 
                 # Ensure the URL is in the tracking table
                 with conn:
@@ -161,15 +157,16 @@ def index_columns(table_name, column_names):
             )
         if isinstance(column_name, (tuple, list)):
             column_name_str = "_".join([*column_name])
-            column_name_list = ", ".join([*column_name])            
+            column_name_list = ", ".join([*column_name])
             cur.execute(
                 f"CREATE INDEX IF NOT EXISTS idx_{column_name_str} ON {table_name}({column_name_list});"
             )
     conn.commit()
     conn.close()
 
+
 def clean():
-    """Reduces the database size with VACUUM if possible and refreshes all the indices. """
+    """Reduces the database size with VACUUM if possible and refreshes all the indices."""
     conn = sqlite3.connect(DATABASEPATH)
     cur = conn.cursor()
     cur.execute("VACUUM;")
@@ -223,7 +220,7 @@ def get_csv_urls(url) -> list:
             a["href"]
             for a in soup.find_all("a", href=True)
             if a["href"].endswith(".gz")
-        ]   
+        ]
     return [url + link for link in links]
 
 
@@ -287,12 +284,14 @@ def initialize_tracking_table(
     """
     with sqlite3.connect(DATABASEPATH) as conn:
         # Ensure the tracking table exists
-        conn.execute(f"""
+        conn.execute(
+            f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 url TEXT PRIMARY KEY,
                 status TEXT DEFAULT 'pending'
             );
-        """)
+        """
+        )
 
         if overwrite:
             # Reset status for all URLs to 'pending'
@@ -328,7 +327,9 @@ def populate_gaiadr3(file_limit=None, overwrite=False) -> None:
         except Exception as e:
             logger.error(f"Error processing file {url}: {e}")
             continue  # Skip to the next file
-    index_columns("gaiadr3", ["source_id", "ra", "dec", ("ra", "dec"), "phot_g_mean_flux"])
+    index_columns(
+        "gaiadr3", ["source_id", "ra", "dec", ("ra", "dec"), "phot_g_mean_flux"]
+    )
 
 
 def add_xmatch_csv_to_db(
@@ -362,7 +363,7 @@ def add_xmatch_csv_to_db(
         # Read the CSV file
         for df in pd.read_csv(
             url, comment="#", usecols=column_names, chunksize=chunksize
-        ): 
+        ):
             # Temporarily store in the database
             df.to_sql("temp", conn, if_exists="append", index=False)
 
@@ -370,7 +371,7 @@ def add_xmatch_csv_to_db(
             index_columns("temp", ["source_id"])
 
             # Perform inner join with gaiadr3 table
-            query = f"""
+            query = """
                 SELECT e.*
                 FROM temp AS e
                 INNER JOIN gaiadr3 AS g
@@ -445,7 +446,10 @@ def populate_tmass_xmatch(file_limit=None, overwrite=False) -> None:
     )
 
     column_names = ["source_id", "original_ext_source_id"]
-    rename = {"source_id":"gaiadr3_source_id", "original_ext_source_id": "tmass_source_id"}
+    rename = {
+        "source_id": "gaiadr3_source_id",
+        "original_ext_source_id": "tmass_source_id",
+    }
     for url in tqdm(
         crossmatch_urls[:file_limit] if file_limit is not None else crossmatch_urls,
         desc="Processing Gaia-2MASS Crossmatch",
@@ -491,9 +495,10 @@ def add_tmass_csv_to_db(url: str, table_name: str, chunksize: int = 1000000) -> 
             url, delimiter="|", header=None, usecols=[5, 6, 10, 14], chunksize=chunksize
         ):
             df.rename(
-                        {5: "tmass_source_id", 6: "j_m", 10: "h_m", 14: "k_m"},
-                        axis="columns", inplace=True
-                    )
+                {5: "tmass_source_id", 6: "j_m", 10: "h_m", 14: "k_m"},
+                axis="columns",
+                inplace=True,
+            )
             df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
 
             # Temporarily store in the database
@@ -538,7 +543,9 @@ def populate_tmass(file_limit=None, overwrite=False) -> None:
     if not os.path.exists(DATABASEPATH):
         raise ValueError(f"Database doesn't exist at {DATABASEPATH}.")
 
-    tmass_table_urls = get_csv_urls("https://irsa.ipac.caltech.edu/2MASS/download/allsky/")[:-3]
+    tmass_table_urls = get_csv_urls(
+        "https://irsa.ipac.caltech.edu/2MASS/download/allsky/"
+    )[:-3]
     initialize_tracking_table(
         tmass_table_urls, "file_tracking_tmass", overwrite=overwrite
     )
@@ -547,9 +554,7 @@ def populate_tmass(file_limit=None, overwrite=False) -> None:
         cur = conn.cursor()
 
         # Create indices
-        cur.execute(
-            f"DROP TABLE IF EXISTS tmass;"
-        )
+        cur.execute("DROP TABLE IF EXISTS tmass;")
         conn.commit()
         conn.close()
 
@@ -575,10 +580,10 @@ def populate_tmass(file_limit=None, overwrite=False) -> None:
 
     # Create indices
     cur.execute(
-        f"CREATE INDEX IF NOT EXISTS idx_tmass_table_gaiadr3_source_id ON tmass(gaiadr3_source_id);"
+        "CREATE INDEX IF NOT EXISTS idx_tmass_table_gaiadr3_source_id ON tmass(gaiadr3_source_id);"
     )
     cur.execute(
-        f"CREATE INDEX IF NOT EXISTS idx_tmass_table_tmass_source_id ON tmass(tmass_source_id);"
+        "CREATE INDEX IF NOT EXISTS idx_tmass_table_tmass_source_id ON tmass(tmass_source_id);"
     )
     conn.commit()
     conn.close()

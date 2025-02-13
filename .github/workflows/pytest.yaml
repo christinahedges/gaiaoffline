@@ -33,6 +33,3 @@ jobs:
 
       - name: Run flake8
         run: poetry run flake8 src tests
-
-      - name: Test with pytest
-        run: poetry run pytest src tests

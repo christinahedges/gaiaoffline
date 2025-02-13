@@ -12,7 +12,13 @@ __all__ = ["Gaia"]
 class Gaia(object):
     """Object to query gaiaoffline database."""
 
-    def __init__(self, magnitude_limit=(-3, 20), limit=None, photometry_output="flux", tmass_crossmatch=False):
+    def __init__(
+        self,
+        magnitude_limit=(-3, 20),
+        limit=None,
+        photometry_output="flux",
+        tmass_crossmatch=False,
+    ):
         self.conn = sqlite3.connect(DATABASEPATH)
         # Need a check here that columns in table match the expected config columns
         self.zeropoints = [
@@ -97,10 +103,10 @@ class Gaia(object):
     def _get_conesearch_filter(self, ra: float, dec: float, radius: float) -> str:
         """
         Constructs an optimized SQL query for a spherical cap search around RA and Dec.
-        
+
         This version correctly handles RA wrap-around near 0° and 360°, as well as Dec limits at ±90°.
 
-        Uses a bounding box pre-filter to reduce the number of rows that require expensive 
+        Uses a bounding box pre-filter to reduce the number of rows that require expensive
         trigonometric calculations.
 
         Parameters
@@ -158,8 +164,6 @@ class Gaia(object):
         """
         return query_filter
 
-
-
     @property
     def _query_limit(self):
         return f"LIMIT {self.limit}" if self.limit is not None else ""
@@ -187,11 +191,11 @@ class Gaia(object):
                         df.drop(f"phot_{mag_str}_mean_flux", axis=1, inplace=True)
         elif self.photometry_output.lower() == "flux":
             if self.tmass_crossmatch:
-                df["j_flux"] = 10**(-0.4*(df["j_m"] - 20.86650085))
+                df["j_flux"] = 10 ** (-0.4 * (df["j_m"] - 20.86650085))
                 df.drop("j_m", axis=1, inplace=True)
-                df["h_flux"] = 10**(-0.4*(df["h_m"] - 20.6576004))
+                df["h_flux"] = 10 ** (-0.4 * (df["h_m"] - 20.6576004))
                 df.drop("h_m", axis=1, inplace=True)
-                df["k_flux"] = 10**(-0.4*(df["k_m"] - 20.04360008))
+                df["k_flux"] = 10 ** (-0.4 * (df["k_m"] - 20.04360008))
                 df.drop("k_m", axis=1, inplace=True)
         else:
             raise ValueError(
@@ -233,11 +237,7 @@ class Gaia(object):
     @property
     def file_tracker_table_names(self):
         cursor = self.conn.cursor()
-        query = """
-            SELECT name 
-            FROM sqlite_master 
-            WHERE type='table' AND name LIKE 'file_track%';
-        """
+        query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'file_track%';"
         cursor.execute(query)
         tracker_table_names = [row[0] for row in cursor.fetchall()]
         return tracker_table_names
@@ -264,7 +264,7 @@ class Gaia(object):
     def column_names(self):
         if self.conn:
             cur = self.conn.cursor()
-            cur.execute(f"PRAGMA table_info(gaiadr3);")
+            cur.execute("PRAGMA table_info(gaiadr3);")
             return [row[1] for row in cur.fetchall()]
         else:
             raise ValueError("No connection to the database.")

@@ -96,27 +96,7 @@ from gaiaoffline import reset_config
 reset_config()
 ```
 
-### Delete the database
-
-The database can get large, and you may wish to delete it. Remember you can find the database file location in the config file.
-
-```python
-from gaiaoffline.utils import delete_database
-
-# Remove the database
-delete_database()
-```
-
-### Adding a precomputed database
-
-If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
-
-1. Your config files match. All but the `db_dir` location should match.
-2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
-
-If you are using the default settings of this repository you can [download a precomputed catalog here](https//:zenodo.org/records/14866120).
-
-## Usage
+## Managing the Database
 
 ### Creating the Database
 
@@ -162,6 +142,28 @@ Offline Gaia Database
    tmass: 100.0% Populated
 ```
 
+### Adding a precomputed database
+
+If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
+
+1. Your config files match. All but the `db_dir` location should match.
+2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
+
+If you are using the default settings of this repository you can [download a precomputed catalog here](https//:zenodo.org/records/14866120).
+
+### Delete the database
+
+The database can get large, and you may wish to delete it. Remember you can find the database file location in the config file.
+
+```python
+from gaiaoffline.utils import delete_database
+
+# Remove the database
+delete_database()
+```
+
+## Usage
+
 ### Querying the Database
 
 `gaiaoffline` provides you with an object that you can manage using context, this ensures that the database behind any queries is always closed after your have finished your queries.
@@ -174,19 +176,118 @@ with Gaia() as gaia:
     results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
 
-#### Cone searches with a magnitude limit
+This should give a result that looks like the following:
 
-You can add a magnitude limit to your conesearch using
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>source_id</th>
+      <th>ra</th>
+      <th>dec</th>
+      <th>parallax</th>
+      <th>pmra</th>
+      <th>pmdec</th>
+      <th>phot_g_mean_flux</th>
+      <th>phot_bp_mean_flux</th>
+      <th>phot_rp_mean_flux</th>
+      <th>radial_velocity</th>
+      <th>teff_gspphot</th>
+      <th>logg_gspphot</th>
+      <th>mh_gspphot</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7090720423502592</td>
+      <td>44.509845</td>
+      <td>5.929635</td>
+      <td>0.747558</td>
+      <td>6.432207</td>
+      <td>4.551372</td>
+      <td>16856.086102</td>
+      <td>8409.319290</td>
+      <td>12121.273134</td>
+      <td>NaN</td>
+      <td>5114.8706</td>
+      <td>4.2540</td>
+      <td>-1.3869</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7097317492675328</td>
+      <td>44.519449</td>
+      <td>6.081799</td>
+      <td>4.258604</td>
+      <td>5.068064</td>
+      <td>5.079538</td>
+      <td>47298.968398</td>
+      <td>27576.148423</td>
+      <td>72616.670451</td>
+      <td>0.469183</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7097317493262720</td>
+      <td>44.519675</td>
+      <td>6.081777</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>34481.298446</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>13.451580</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7096905176403968</td>
+      <td>44.525031</td>
+      <td>6.043208</td>
+      <td>0.081763</td>
+      <td>-0.017625</td>
+      <td>-2.614324</td>
+      <td>9935.154498</td>
+      <td>4022.459319</td>
+      <td>8514.830261</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7103188712818304</td>
+      <td>44.526470</td>
+      <td>6.097983</td>
+      <td>1.191807</td>
+      <td>7.503639</td>
+      <td>-10.218165</td>
+      <td>84525.893200</td>
+      <td>44516.084209</td>
+      <td>57364.797278</td>
+      <td>-0.059489</td>
+      <td>6297.8930</td>
+      <td>4.0977</td>
+      <td>-0.4296</td>
+    </tr>
+  </tbody>
+</table>
+
+You can add a magnitude limit to your conesearch using the following code. This will execute larger searches faster by applying the magnitude limit first.
 
 ```python
 from gaiaoffline import Gaia
 with Gaia(magnitude_limit=(-3, 10)) as gaia:
     results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
-
-This will execute larger searches faster by applying the magnitude limit first.
-
-#### Cone searches with 2MASS data
 
 You can include the 2MASS crossmatch data using
 
@@ -196,8 +297,6 @@ with Gaia(tmass_crossmatch=True) as gaia:
     results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
 
-#### Cone searches with magnitude outputs instead of flux
-
 The default is to output fluxes in the catalog, but you can switch to magnitudes using
 
 ```python
@@ -206,8 +305,6 @@ with Gaia(photometry_output='mag') as gaia:
     results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
 
-#### Cone searches with a limit on results
-
 If you are doing a large query and want only the top 10 results to test the query, you can use
 
 ```python
@@ -215,6 +312,8 @@ from gaiaoffline import Gaia
 with Gaia(limit=10) as gaia:
     results = gaia.conesearch(ra=45.0, dec=6.0, radius=0.5)
 ```
+
+Any of the above can be used in combination.
 
 ## License
 
