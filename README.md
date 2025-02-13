@@ -147,7 +147,7 @@ If you've recieved a database file from a colleague or downloaded from Zenodo ma
 1. Your config files match. All but the `db_dir` location should match.
 2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
 
-If you are using the default settings of this repository you can [download a precomputed catalog here](https//:zenodo.org/records/14866120).
+If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120).
 
 ### Delete the database
 
