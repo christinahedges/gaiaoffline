@@ -1,5 +1,3 @@
-<a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/pytest.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/pytest/badge.svg" alt="Test status"/></a>
-
 # GaiaOffline
 
 **GaiaOffline** is a Python package for offline querying of Gaia DR3 data. It enables you to download Gaia catalog subsets, store them in a local SQLite database, and perform efficient queries without relying on online services.
