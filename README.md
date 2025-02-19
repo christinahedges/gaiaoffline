@@ -17,6 +17,14 @@ The total size of the catalog once you have completed the download using the def
 
 ## Installation
 
+You will follow these basic steps to install this package, detailed here;
+
+1. Install the package
+2. Update the configuration for the package
+3. Either download or build the database file.
+
+These instructions are covered in more detail below.
+
 ### Install using pip
 
 You can install this package with pip using
@@ -101,7 +109,18 @@ reset_config()
 
 ## Managing the Database
 
-### Creating the Database
+To add a database to this package, you can either build a new one or obtain an existing one. If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120).
+
+### Adding a precomputed database
+
+If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
+
+1. Your config files match. All but the `db_dir` location should match.
+2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
+
+If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120).
+
+### Creating the Database from scratch
 
 If you don't have a copy of the database, you can create one using
 
@@ -149,16 +168,7 @@ Offline Gaia Database
    tmass: 100.0% Populated
 ```
 
-### Adding a precomputed database
-
-If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
-
-1. Your config files match. All but the `db_dir` location should match.
-2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
-
-If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120).
-
-### Delete the database
+### Deleting the database
 
 The database can get large, and you may wish to delete it. Remember you can find the database file location in the config file.
 
