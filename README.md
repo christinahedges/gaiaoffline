@@ -118,7 +118,7 @@ If you've recieved a database file from a colleague or downloaded from Zenodo ma
 1. Your config files match. All but the `db_dir` location should match.
 2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
 
-If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120).
+If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120). This will likely be adequate for the needs of most users.
 
 ### Creating the Database from scratch
 
@@ -129,7 +129,7 @@ from gaiaoffline import populate_gaiadr3
 populate_gaiadr3()
 ```
 
-This will download ~3500 csv files and will take a long time. If you interupt the download for any reason, simply repeat the command and the database will pick up the download from wherever you've left off.
+This will download ~3500 csv files and will take a long time (depending on your internet connection this will take ~days). If you interupt the download for any reason, simply repeat the command and the database will pick up the download from wherever you've left off.
 
 #### 2MASS crossmatching
 
@@ -339,6 +339,11 @@ Any of the above can be used in combination.
 This project is licensed under the MIT License.
 
 ## Changelog
+
+### v1.0.2
+
+- Updated broken requirements for pip installation
+- Updated installation instructions
 
 ### v1.0.1
 
