@@ -48,7 +48,7 @@ GaiaOffline uses a persistent configuration file to manage settings. The configu
 - **Linux**: `~/.config/gaiaoffline/config.ini`
 - **Windows**: `%LOCALAPPDATA%\gaiaoffline\config.ini`
 
-You can use this file to customize the behavior of the package without modifying the code.
+You can use this file to customize the behavior of the package without modifying the code. The config file will be generated on import if you do not have a config file in the expected place. Simply `import gaiaoffline` within a Python environment to make sure the file is created. If you do already have a config file, this will be used any time `gaiaoffline` is imported from **any** environment; i.e. if you have this tool installed in multiple places there is a single shared config file and a single shared database file.
 
 The default magnitude limit is 16. This means that the tool will download the catalogs in small chunks, keep only elements that are brighter than 16th magnitude, delete the rest of the data and then move onto the next chunk. This results in a database that is ~30Gb on disk, and you will never require more hard-drive space than that to use the tool. If you increase the magnitude limit the final stored database will be larger.
 
