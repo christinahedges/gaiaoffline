@@ -1,5 +1,6 @@
 <a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/black.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/black/badge.svg" alt="black status"/></a> <a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/flake8.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/flake8/badge.svg" alt="flake8 status"/></a> [![Generic badge](https://img.shields.io/badge/documentation-live-blue.svg)](https://christinahedges.github.io/gaiaoffline/)
-![PyPI - Version](https://img.shields.io/pypi/v/gaiaoffline) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gaiaoffline)
+[![PyPI - Version](https://img.shields.io/pypi/v/gaiaoffline)](https://pypi.org/project/gaiaoffline/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gaiaoffline)](https://pypi.org/project/gaiaoffline/)
 
 # GaiaOffline
 
