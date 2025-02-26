@@ -1,4 +1,4 @@
-![PyPI Version](https://img.shields.io/pypi/v/gaiaoffline)
+<a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/black.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/black/badge.svg" alt="black status"/></a> <a href="https://github.com/christinahedges/gaiaoffline/actions/workflows/flake8.yml"><img src="https://github.com/christinahedges/gaiaoffline/workflows/flake8/badge.svg" alt="flake8 status"/></a> [![Generic badge](https://img.shields.io/badge/documentation-live-blue.svg)](https://pandoramission.github.io/pandora-blank/) ![PyPI Version](https://img.shields.io/pypi/v/gaiaoffline)
 
 # GaiaOffline
 
@@ -64,7 +64,7 @@ The default magnitude limit is 16. This means that the tool will download the ca
 
 1. **SETTINGS**
    - `archive_url`: URL to the Gaia DR3 archive for downloading data. Should be a listing of CSV files to download.
-   - `db_dir`: Directory where the SQLite database is stored.
+   - `data_dir`: Directory where the SQLite database is stored.
    - `db_name`: Name of the database file (default: `gaiadr3.db`).
    - `table_name`: Name of the database table for Gaia data.
    - `log_level`: Logging level (`INFO`, `DEBUG`, etc.).
@@ -78,7 +78,7 @@ The default magnitude limit is 16. This means that the tool will download the ca
 
 ```ini
 [SETTINGS]
-db_dir = /path/to/database
+data_dir = /path/to/database
 db_name = gaiaoffline.db
 log_level = INFO
 
@@ -115,8 +115,8 @@ To add a database to this package, you can either build a new one or obtain an e
 
 If you've recieved a database file from a colleague or downloaded from Zenodo make sure that
 
-1. Your config files match. All but the `db_dir` location should match.
-2. Your database file is in the `db_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
+1. Your config files match. All but the `data_dir` location should match.
+2. Your database file is in the `data_dir` location. You can also find this by running `from gaiaoffline import DATABASEPATH`. This string will tell you where the file should be.
 
 If you are using the default settings of this repository you can [download a precomputed catalog here](https://zenodo.org/records/14866120). This will likely be adequate for the needs of most users.
 
@@ -204,14 +204,6 @@ This should give a result that looks like the following:
       <th>dec</th>
       <th>parallax</th>
       <th>pmra</th>
-      <th>pmdec</th>
-      <th>phot_g_mean_flux</th>
-      <th>phot_bp_mean_flux</th>
-      <th>phot_rp_mean_flux</th>
-      <th>radial_velocity</th>
-      <th>teff_gspphot</th>
-      <th>logg_gspphot</th>
-      <th>mh_gspphot</th>
     </tr>
   </thead>
   <tbody>
@@ -222,14 +214,6 @@ This should give a result that looks like the following:
       <td>5.929635</td>
       <td>0.747558</td>
       <td>6.432207</td>
-      <td>4.551372</td>
-      <td>16856.086102</td>
-      <td>8409.319290</td>
-      <td>12121.273134</td>
-      <td>NaN</td>
-      <td>5114.8706</td>
-      <td>4.2540</td>
-      <td>-1.3869</td>
     </tr>
     <tr>
       <th>1</th>
@@ -238,28 +222,12 @@ This should give a result that looks like the following:
       <td>6.081799</td>
       <td>4.258604</td>
       <td>5.068064</td>
-      <td>5.079538</td>
-      <td>47298.968398</td>
-      <td>27576.148423</td>
-      <td>72616.670451</td>
-      <td>0.469183</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>2</th>
       <td>7097317493262720</td>
       <td>44.519675</td>
       <td>6.081777</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>34481.298446</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>13.451580</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
@@ -270,14 +238,6 @@ This should give a result that looks like the following:
       <td>6.043208</td>
       <td>0.081763</td>
       <td>-0.017625</td>
-      <td>-2.614324</td>
-      <td>9935.154498</td>
-      <td>4022.459319</td>
-      <td>8514.830261</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>4</th>
@@ -286,14 +246,6 @@ This should give a result that looks like the following:
       <td>6.097983</td>
       <td>1.191807</td>
       <td>7.503639</td>
-      <td>-10.218165</td>
-      <td>84525.893200</td>
-      <td>44516.084209</td>
-      <td>57364.797278</td>
-      <td>-0.059489</td>
-      <td>6297.8930</td>
-      <td>4.0977</td>
-      <td>-0.4296</td>
     </tr>
   </tbody>
 </table>
@@ -339,6 +291,11 @@ Any of the above can be used in combination.
 This project is licensed under the MIT License.
 
 ## Changelog
+
+### v1.03
+
+- Added config file display function
+- Moved docs and added mkdocs pages
 
 ### v1.0.2
 

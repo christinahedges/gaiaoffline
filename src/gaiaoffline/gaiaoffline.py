@@ -1,6 +1,8 @@
+# Standard library
 import sqlite3
 import timeit
 
+# Third-party
 import numpy as np
 import pandas as pd
 
@@ -35,14 +37,18 @@ class Gaia(object):
                 ("tmass",),
             )
             if cursor.fetchone() != ("tmass",):
-                raise KeyError("2MASS Crossmatch is not present in the database. ")
+                raise KeyError(
+                    "2MASS Crossmatch is not present in the database. "
+                )
         self.tmass_crossmatch = tmass_crossmatch
 
     def __repr__(self):
         tracker_table_names = self.file_tracker_table_names
         track_percentages = []
         for tracker_table_name in tracker_table_names:
-            df = pd.read_sql_query(f"""SELECT * FROM {tracker_table_name}""", self.conn)
+            df = pd.read_sql_query(
+                f"""SELECT * FROM {tracker_table_name}""", self.conn
+            )
             percentage = 100 * df.status.isin(["completed"]).sum() / len(df)
             table_name = " ".join(tracker_table_name.split("_")[2:])
             track_percentages.append(
@@ -56,14 +62,20 @@ class Gaia(object):
         return ["LEFT JOIN tmass t", "ON g.source_id = t.gaiadr3_source_id"]
 
     def _brightness_filter(self, magnitude_limit):
-        if (not isinstance(magnitude_limit, tuple)) | (len(magnitude_limit) != 2):
+        if (not isinstance(magnitude_limit, tuple)) | (
+            len(magnitude_limit) != 2
+        ):
             raise ValueError(
                 "Pass `magnitude_limit` as a tuple with (brightest magnitude, faintest magnitude)."
             )
         upper_limit = np.min(magnitude_limit)
         lower_limit = np.max(magnitude_limit)
-        upper_limit_flux = np.round(10 ** ((self.zeropoints[0] - upper_limit) / 2.5))
-        lower_limit_flux = np.round(10 ** ((self.zeropoints[0] - lower_limit) / 2.5))
+        upper_limit_flux = np.round(
+            10 ** ((self.zeropoints[0] - upper_limit) / 2.5)
+        )
+        lower_limit_flux = np.round(
+            10 ** ((self.zeropoints[0] - lower_limit) / 2.5)
+        )
         return [
             f"g.phot_g_mean_flux < {upper_limit_flux}",
             f"g.phot_g_mean_flux > {lower_limit_flux}",
@@ -106,7 +118,9 @@ class Gaia(object):
     #     """
     #     return query_filter
 
-    def _get_conesearch_filter(self, ra: float, dec: float, radius: float) -> str:
+    def _get_conesearch_filter(
+        self, ra: float, dec: float, radius: float
+    ) -> str:
         """
         Constructs an optimized SQL query for a spherical cap search around RA and Dec.
 
@@ -135,7 +149,9 @@ class Gaia(object):
         dec_rad = np.deg2rad(dec)
 
         # Compute bounding box (fast filter)
-        delta_ra = np.rad2deg(radius_rad / np.cos(dec_rad))  # Adjust for declination
+        delta_ra = np.rad2deg(
+            radius_rad / np.cos(dec_rad)
+        )  # Adjust for declination
         delta_dec = np.rad2deg(radius_rad)
 
         # Handle Declination limits (avoid exceeding ±90°)
@@ -148,7 +164,9 @@ class Gaia(object):
 
         # If the bounding box crosses RA=0, use OR condition to handle wraparound
         if ra_min > ra_max:
-            ra_condition = f"(ra BETWEEN {ra_min} AND 360 OR ra BETWEEN 0 AND {ra_max})"
+            ra_condition = (
+                f"(ra BETWEEN {ra_min} AND 360 OR ra BETWEEN 0 AND {ra_max})"
+            )
         else:
             ra_condition = f"(ra BETWEEN {ra_min} AND {ra_max})"
 
@@ -192,25 +210,32 @@ class Gaia(object):
                                 / df[f"phot_{mag_str}_mean_flux"]
                             )
                             df.drop(
-                                f"phot_{mag_str}_mean_flux_error", axis=1, inplace=True
+                                f"phot_{mag_str}_mean_flux_error",
+                                axis=1,
+                                inplace=True,
                             )
                     if f"phot_{mag_str}_mean_mag" not in df.columns:
                         df[f"phot_{mag_str}_mean_mag"] = self.zeropoints[
                             mdx
                         ] - 2.5 * np.log10(df[f"phot_{mag_str}_mean_flux"])
-                        df.drop(f"phot_{mag_str}_mean_flux", axis=1, inplace=True)
+                        df.drop(
+                            f"phot_{mag_str}_mean_flux", axis=1, inplace=True
+                        )
         elif self.photometry_output.lower() == "flux":
             if self.tmass_crossmatch:
                 df["j_flux"] = 10 ** (
-                    -0.4 * (pd.to_numeric(df["j_m"], errors="coerce") - 20.86650085)
+                    -0.4
+                    * (pd.to_numeric(df["j_m"], errors="coerce") - 20.86650085)
                 )
                 df.drop("j_m", axis=1, inplace=True)
                 df["h_flux"] = 10 ** (
-                    -0.4 * (pd.to_numeric(df["h_m"], errors="coerce") - 20.6576004)
+                    -0.4
+                    * (pd.to_numeric(df["h_m"], errors="coerce") - 20.6576004)
                 )
                 df.drop("h_m", axis=1, inplace=True)
                 df["k_flux"] = 10 ** (
-                    -0.4 * (pd.to_numeric(df["k_m"], errors="coerce") - 20.04360008)
+                    -0.4
+                    * (pd.to_numeric(df["k_m"], errors="coerce") - 20.04360008)
                 )
                 df.drop("k_m", axis=1, inplace=True)
         else:

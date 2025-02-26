@@ -1,14 +1,15 @@
+# Standard library
+import functools
 import os
 import sqlite3
-from typing import List, Dict, Callable
-import functools
 import tempfile
-import requests
 from functools import wraps
+from typing import Callable, Dict, List
 
-
+# Third-party
 import numpy as np
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -112,7 +113,8 @@ def track_file_processing(tracking_table: str) -> Callable:
 
                 # Check the file's current status
                 status = conn.execute(
-                    f"SELECT status FROM {tracking_table} WHERE url = ?;", (url,)
+                    f"SELECT status FROM {tracking_table} WHERE url = ?;",
+                    (url,),
                 ).fetchone()
                 if status and status[0] == "completed":
                     logger.info(f"File already processed: {url}")
@@ -130,7 +132,9 @@ def track_file_processing(tracking_table: str) -> Callable:
 
                 return result
             except Exception as e:
-                logger.error(f"Error processing file in tracking decorator {url}: {e}")
+                logger.error(
+                    f"Error processing file in tracking decorator {url}: {e}"
+                )
                 with conn:
                     conn.execute(
                         f"UPDATE {tracking_table} SET status = 'failed' WHERE url = ?;",
@@ -253,7 +257,11 @@ def add_gaia_csv_to_db(
                 "`phot_g_mean_flux` is not included in the default columns in your config file. You must include at least this column."
             )
         for df in pd.read_csv(
-            url, comment="#", usecols=column_names, skiprows=1000, chunksize=chunksize
+            url,
+            comment="#",
+            usecols=column_names,
+            skiprows=1000,
+            chunksize=chunksize,
         ):
             # Apply filters and load into the database
             zp = float(config["DATABASE"]["zeropoints"].split(",")[0])
@@ -312,13 +320,19 @@ def populate_gaiadr3(file_limit=None, overwrite=False) -> None:
     Creates the database by downloading all the Gaia data. If interupted, repeat this command.
     """
     logger.info("Downloading and creating a new database.")
-    gaia_csv_urls = get_csv_urls("https://cdn.gea.esac.esa.int/Gaia/gdr3/gaia_source/")
+    gaia_csv_urls = get_csv_urls(
+        "https://cdn.gea.esac.esa.int/Gaia/gdr3/gaia_source/"
+    )
     initialize_tracking_table(
         gaia_csv_urls, "file_tracking_gaiadr3", overwrite=overwrite
     )
     column_names = config["DATABASE"]["stored_columns"].split(",")
     for url in tqdm(
-        gaia_csv_urls[:file_limit] if file_limit is not None else gaia_csv_urls,
+        (
+            gaia_csv_urls[:file_limit]
+            if file_limit is not None
+            else gaia_csv_urls
+        ),
         desc="Gaia Files Added",
     ):
         try:
@@ -328,7 +342,8 @@ def populate_gaiadr3(file_limit=None, overwrite=False) -> None:
             logger.error(f"Error processing file {url}: {e}")
             continue  # Skip to the next file
     index_columns(
-        "gaiadr3", ["source_id", "ra", "dec", ("ra", "dec"), "phot_g_mean_flux"]
+        "gaiadr3",
+        ["source_id", "ra", "dec", ("ra", "dec"), "phot_g_mean_flux"],
     )
 
 
@@ -393,7 +408,9 @@ def add_xmatch_csv_to_db(
         raise
     finally:
         conn.close()
-    logger.info(f"File {url} successfully processed and added to {table_name}.")
+    logger.info(
+        f"File {url} successfully processed and added to {table_name}."
+    )
 
 
 @track_file_processing(tracking_table="file_tracking_tmass_xmatch")
@@ -421,7 +438,10 @@ def add_tmass_xmatch_csv_to_db(
         Dictionary to rename columns.
     """
     add_xmatch_csv_to_db(
-        url=url, table_name=table_name, column_names=column_names, rename=rename
+        url=url,
+        table_name=table_name,
+        column_names=column_names,
+        rename=rename,
     )
 
 
@@ -451,7 +471,11 @@ def populate_tmass_xmatch(file_limit=None, overwrite=False) -> None:
         "original_ext_source_id": "tmass_source_id",
     }
     for url in tqdm(
-        crossmatch_urls[:file_limit] if file_limit is not None else crossmatch_urls,
+        (
+            crossmatch_urls[:file_limit]
+            if file_limit is not None
+            else crossmatch_urls
+        ),
         desc="Processing Gaia-2MASS Crossmatch",
     ):
         try:
@@ -472,7 +496,9 @@ def populate_tmass_xmatch(file_limit=None, overwrite=False) -> None:
 
 @track_file_processing(tracking_table="file_tracking_tmass")
 @download_url()
-def add_tmass_csv_to_db(url: str, table_name: str, chunksize: int = 1000000) -> None:
+def add_tmass_csv_to_db(
+    url: str, table_name: str, chunksize: int = 1000000
+) -> None:
     """
     Processes a single external 2MASS table file and integrates it into the SQLite database.
 
@@ -492,7 +518,11 @@ def add_tmass_csv_to_db(url: str, table_name: str, chunksize: int = 1000000) -> 
     try:
         # Load the data from the external file
         for df in pd.read_csv(
-            url, delimiter="|", header=None, usecols=[5, 6, 10, 14], chunksize=chunksize
+            url,
+            delimiter="|",
+            header=None,
+            usecols=[5, 6, 10, 14],
+            chunksize=chunksize,
         ):
             df.rename(
                 {5: "tmass_source_id", 6: "j_m", 10: "h_m", 14: "k_m"},
@@ -527,7 +557,9 @@ def add_tmass_csv_to_db(url: str, table_name: str, chunksize: int = 1000000) -> 
         raise
     finally:
         conn.close()
-    logger.info(f"2MASS file {url} successfully processed and added to {table_name}.")
+    logger.info(
+        f"2MASS file {url} successfully processed and added to {table_name}."
+    )
 
 
 def populate_tmass(file_limit=None, overwrite=False) -> None:
@@ -559,7 +591,11 @@ def populate_tmass(file_limit=None, overwrite=False) -> None:
         conn.close()
 
     for url in tqdm(
-        tmass_table_urls[:file_limit] if file_limit is not None else tmass_table_urls,
+        (
+            tmass_table_urls[:file_limit]
+            if file_limit is not None
+            else tmass_table_urls
+        ),
         desc="Processing 2MASS Catalog",
     ):
         try:
