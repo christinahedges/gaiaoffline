@@ -38,7 +38,7 @@ pytkdocs = {version = "^0.16.2", extras = ["numpy-style"]}
 mkdocs-include-markdown-plugin = "^7.1.4"
 mkdocstrings = {version = "^0.28.2", extras = ["python"]}
 jupyter-contrib-nbextensions = "^0.7.0"
-notebook = "^6.0.0"
+notebook = ">=6.0.0,<7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
