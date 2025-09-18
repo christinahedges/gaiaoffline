@@ -2,14 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://christinahedges.github.io/gaiaoffline/</loc>
-         <lastmod>2025-02-27</lastmod>
+         <lastmod>2025-09-18</lastmod>
     </url>
     <url>
          <loc>https://christinahedges.github.io/gaiaoffline/apidocs/</loc>
-         <lastmod>2025-02-27</lastmod>
+         <lastmod>2025-09-18</lastmod>
+    </url>
+    <url>
+         <loc>https://christinahedges.github.io/gaiaoffline/calibration-target-notebook/</loc>
+         <lastmod>2025-09-18</lastmod>
     </url>
     <url>
          <loc>https://christinahedges.github.io/gaiaoffline/notebook-example/</loc>
-         <lastmod>2025-02-27</lastmod>
+         <lastmod>2025-09-18</lastmod>
     </url>
 </urlset>
