@@ -61,7 +61,7 @@ class Gaia(object):
     def _tmass_crossmatch_filter(self):
         return ["LEFT JOIN tmass t", "ON g.source_id = t.gaiadr3_source_id"]
 
-    def _brightness_filter(self, magnitude_limit):
+    def _brightness_filter(self, magnitude_limit, band="g"):
         if (not isinstance(magnitude_limit, tuple)) | (
             len(magnitude_limit) != 2
         ):
@@ -70,16 +70,71 @@ class Gaia(object):
             )
         upper_limit = np.min(magnitude_limit)
         lower_limit = np.max(magnitude_limit)
-        upper_limit_flux = np.round(
-            10 ** ((self.zeropoints[0] - upper_limit) / 2.5)
-        )
-        lower_limit_flux = np.round(
-            10 ** ((self.zeropoints[0] - lower_limit) / 2.5)
-        )
-        return [
-            f"g.phot_g_mean_flux < {upper_limit_flux}",
-            f"g.phot_g_mean_flux > {lower_limit_flux}",
-        ]
+        if band.lower() == "g":
+            upper_limit_flux = np.round(
+                10 ** ((self.zeropoints[0] - upper_limit) / 2.5)
+            )
+            lower_limit_flux = np.round(
+                10 ** ((self.zeropoints[0] - lower_limit) / 2.5)
+            )
+            return [
+                f"g.phot_g_mean_flux < {upper_limit_flux}",
+                f"g.phot_g_mean_flux > {lower_limit_flux}",
+            ]
+        if band.lower() in ["b", "bp"]:
+            upper_limit_flux = np.round(
+                10 ** ((self.zeropoints[1] - upper_limit) / 2.5)
+            )
+            lower_limit_flux = np.round(
+                10 ** ((self.zeropoints[1] - lower_limit) / 2.5)
+            )
+            return [
+                f"g.phot_bp_mean_flux < {upper_limit_flux}",
+                f"g.phot_bp_mean_flux > {lower_limit_flux}",
+            ]
+        if band.lower() in ["r", "rp"]:
+            upper_limit_flux = np.round(
+                10 ** ((self.zeropoints[2] - upper_limit) / 2.5)
+            )
+            lower_limit_flux = np.round(
+                10 ** ((self.zeropoints[2] - lower_limit) / 2.5)
+            )
+            return [
+                f"g.phot_rp_mean_flux < {upper_limit_flux}",
+                f"g.phot_rp_mean_flux > {lower_limit_flux}",
+            ]
+        if band.lower() in ["j"]:
+            if self.tmass_crossmatch:
+                return [
+                    f"t.j_m < {lower_limit}",
+                    f"t.j_m > {upper_limit}",
+                ]
+            else:
+                raise ValueError(
+                    "You must set `tmass_crossmatch` to True to search for j magnitudes."
+                )
+
+        if band.lower() in ["h"]:
+            if self.tmass_crossmatch:
+                return [
+                    f"t.h_m < {lower_limit}",
+                    f"t.h_m > {upper_limit}",
+                ]
+            else:
+                raise ValueError(
+                    "You must set `tmass_crossmatch` to True to search for h magnitudes."
+                )
+
+        if band.lower() in ["k"]:
+            if self.tmass_crossmatch:
+                return [
+                    f"t.k_m < {lower_limit}",
+                    f"t.k_m > {upper_limit}",
+                ]
+            else:
+                raise ValueError(
+                    "You must set `tmass_crossmatch` to True to search for k magnitudes."
+                )
 
     # def _get_conesearch_filter(self, ra: float, dec: float, radius: float) -> str:
     #     """
@@ -278,7 +333,9 @@ class Gaia(object):
         query = f"SELECT g.*{tmass_table_str} FROM gaiadr3 g {tmass_crossmatch_str} WHERE {filter_str} {self._query_limit}"
         return self._clean_dataframe(pd.read_sql_query(query, self.conn))
 
-    def brightnesslimitsearch(self, magnitude_limit: tuple) -> pd.DataFrame:
+    def brightnesslimitsearch(
+        self, magnitude_limit: tuple, band: str = "g", filters: list = None
+    ) -> pd.DataFrame:
         """
         Perform a search for all targets down to a given brightness limit.
 
@@ -298,8 +355,13 @@ class Gaia(object):
         else:
             tmass_crossmatch_str = ""
             tmass_table_str = ""
-
-        filter_str = " AND ".join([*self._brightness_filter(magnitude_limit)])
+        if filters is None:
+            filters = []
+        if isinstance(filters, str):
+            filters = [filters]
+        filter_str = " AND ".join(
+            [*self._brightness_filter(magnitude_limit, band=band), *filters]
+        )
         query = f"SELECT g.*{tmass_table_str} FROM gaiadr3 g {tmass_crossmatch_str} WHERE {filter_str} {self._query_limit}"
         return self._clean_dataframe(pd.read_sql_query(query, self.conn))
 
@@ -322,7 +384,7 @@ class Gaia(object):
 
     def benchmark(self) -> str:
         """Returns the number of seconds a benchmark query takes."""
-        return f"Benchmark takes {np.round(timeit.timeit(lambda: self.conesearch(45, 6, 0.2), number=100), 2)/100}s"
+        return f"Benchmark takes {np.round(timeit.timeit(lambda: self.conesearch(45, 6, 0.2), number=100), 2) / 100}s"
 
     def close(self):
         """Closes the database connection."""

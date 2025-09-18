@@ -5,7 +5,8 @@ docs_dir: docs
 nav:
   - Home: README.md
   - API: apidocs.md
-  - Example Notebook: notebook-example.ipynb
+  - Example Notebook 1: notebook-example.ipynb
+  - Example Notebook 2: calibration-target-notebook.ipynb
   
 theme:
   name: "material"
